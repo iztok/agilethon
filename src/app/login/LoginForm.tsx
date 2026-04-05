@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { useSignIn } from "@clerk/nextjs";
 import { MatrixRain } from "@/components/MatrixRain";
 import { BlinkCursor } from "@/components/ui/BlinkCursor";
 import { GlitchText } from "@/components/ui/GlitchText";
@@ -15,6 +15,16 @@ const ASCII_LOGO = `
 `;
 
 export function LoginForm({ error }: { error?: string }) {
+  const { signIn } = useSignIn();
+
+  const handleGoogleSignIn = async () => {
+    await signIn.sso({
+      strategy: "oauth_google",
+      redirectUrl: "/sso-callback",
+      redirectCallbackUrl: "/",
+    });
+  };
+
   return (
     <>
       <MatrixRain opacity={0.4} />
@@ -64,7 +74,7 @@ export function LoginForm({ error }: { error?: string }) {
           )}
 
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={handleGoogleSignIn}
             className="terminal-btn terminal-btn-cyan"
             style={{ width: "100%", padding: "0.75rem", fontSize: "0.9rem" }}
           >

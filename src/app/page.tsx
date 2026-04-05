@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
 
-import { auth } from "@/lib/auth";
+import { getAuthUser } from "@/lib/auth-helpers";
 import { redirect } from "next/navigation";
 import { getOrCreateEvent } from "@/lib/game";
 
 export default async function RootPage() {
-  const session = await auth();
+  const user = await getAuthUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect("/login");
   }
 

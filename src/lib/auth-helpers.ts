@@ -1,4 +1,5 @@
-import { auth } from "./auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { prisma } from "./prisma";
 
 export interface AuthUser {
   id: string;
@@ -10,19 +11,56 @@ export interface AuthUser {
   vibeLevel: number;
 }
 
+const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN || "agiledrop.com";
+
+/**
+ * Returns the current user from our DB, creating them on first login.
+ * Returns null if not authenticated or domain is not allowed.
+ */
 export async function getAuthUser(): Promise<AuthUser | null> {
-  const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = (session as any)?.user;
-  if (!user) return null;
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  // Find existing user in DB by Clerk ID
+  let dbUser = await prisma.user.findUnique({ where: { clerkId: userId } });
+
+  if (!dbUser) {
+    // First login — provision user from Clerk data
+    const clerkUser = await currentUser();
+    if (!clerkUser) return null;
+
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+    if (!email.endsWith(`@${ALLOWED_DOMAIN}`)) return null;
+
+    const name =
+      clerkUser.fullName ||
+      clerkUser.firstName ||
+      email.split("@")[0] ||
+      "Anonymous";
+
+    // First user becomes admin
+    const count = await prisma.user.count();
+    const isAdmin = count === 0;
+
+    dbUser = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email,
+        name,
+        avatarUrl: clerkUser.imageUrl ?? null,
+        isAdmin,
+      },
+    });
+  }
+
   return {
-    id: user.id ?? "",
-    name: user.name,
-    email: user.email,
-    image: user.image,
-    isAdmin: user.isAdmin ?? false,
-    isOptedOut: user.isOptedOut ?? false,
-    vibeLevel: user.vibeLevel ?? 3,
+    id: dbUser.id,
+    name: dbUser.name,
+    email: dbUser.email,
+    image: dbUser.avatarUrl,
+    isAdmin: dbUser.isAdmin,
+    isOptedOut: dbUser.isOptedOut,
+    vibeLevel: dbUser.vibeLevel,
   };
 }
 

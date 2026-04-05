@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useClerk } from "@clerk/nextjs";
 
 interface NavBarProps {
   user?: {
@@ -14,6 +14,7 @@ interface NavBarProps {
 
 export function NavBar({ user }: NavBarProps) {
   const pathname = usePathname();
+  const { signOut } = useClerk();
   const username = user?.email?.split("@")[0] ?? "guest";
 
   return (
@@ -47,7 +48,7 @@ export function NavBar({ user }: NavBarProps) {
         )}
 
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ redirectUrl: "/login" })}
           className="terminal-btn"
           style={{ fontSize: "0.7rem", padding: "0.2rem 0.5rem" }}
         >

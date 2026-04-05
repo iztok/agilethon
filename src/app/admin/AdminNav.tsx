@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useClerk } from "@clerk/nextjs";
 
 const TABS = [
   { href: "/admin/game", label: "⚡ Game Control" },
@@ -14,6 +14,7 @@ const TABS = [
 
 export function AdminNav({ user }: { user: { name?: string | null; email?: string | null; isAdmin?: boolean } }) {
   const pathname = usePathname();
+  const { signOut } = useClerk();
 
   return (
     <nav style={{ background: "#000", borderBottom: "2px solid var(--terminal-orange)", fontFamily: "monospace" }}>
@@ -29,7 +30,7 @@ export function AdminNav({ user }: { user: { name?: string | null; email?: strin
           <Link href="/dashboard" style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.7rem" }}>→ player view</Link>
           <Link href="/projector" style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.7rem" }}>→ projector</Link>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ redirectUrl: "/login" })}
             style={{ background: "transparent", border: "1px solid #333", color: "#555", cursor: "pointer", padding: "0.1rem 0.4rem", fontSize: "0.7rem", fontFamily: "inherit" }}
           >
             logout
