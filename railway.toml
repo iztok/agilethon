@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "DATABASE_URL=postgresql://build:build@localhost/build npx next build --no-turbopack"
+buildCommand = "TURBOPACK=0 DATABASE_URL=postgresql://build:build@localhost/build npm run build"
 
 [deploy]
 startCommand = "npx prisma db push && npm run db:seed ; npm run start"
