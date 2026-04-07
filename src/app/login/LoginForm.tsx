@@ -15,13 +15,14 @@ const ASCII_LOGO = `
 `;
 
 export function LoginForm({ error }: { error?: string }) {
-  const { signIn } = useSignIn();
+  const { isLoaded, signIn } = useSignIn();
 
   const handleGoogleSignIn = async () => {
-    await signIn.sso({
+    if (!isLoaded) return;
+    await signIn.authenticateWithRedirect({
       strategy: "oauth_google",
       redirectUrl: "/sso-callback",
-      redirectCallbackUrl: "/",
+      redirectUrlComplete: "/",
     });
   };
 
