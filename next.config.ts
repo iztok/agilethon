@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@clerk/nextjs", "@clerk/clerk-react", "@clerk/shared", "@clerk/react"],
-  serverExternalPackages: ["@prisma/client", "prisma", "@clerk/nextjs", "@clerk/backend", "@clerk/shared"],
+  serverExternalPackages: ["@prisma/client", "prisma", "@clerk/nextjs", "@clerk/backend", "@clerk/shared", "@clerk/clerk-react", "@clerk/react"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
