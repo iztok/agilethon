@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  bundlePagesRouterDependencies: false,
+  transpilePackages: ["@clerk/nextjs", "@clerk/clerk-react", "@clerk/shared", "@clerk/react"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
