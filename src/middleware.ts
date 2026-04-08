@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher(["/login(.*)", "/projector(.*)", "/api/auth(.*)"]);
+const isPublicRoute = createRouteMatcher(["/login(.*)", "/projector(.*)", "/sso-callback(.*)", "/api/auth(.*)"]);
 
 const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN || "agiledrop.com";
 
