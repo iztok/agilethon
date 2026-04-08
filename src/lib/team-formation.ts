@@ -1,4 +1,36 @@
-import type { User, Team, TeamMember, TeamAssignment, Project, TechStack } from "@prisma/client";
+export interface Participant {
+  id: string;
+  vibeLevel: number;
+}
+
+export interface FoldPairResult {
+  pairs: [Participant, Participant][];
+  solo: Participant | null;
+}
+
+/**
+ * Fold-pairing algorithm: sorts participants by vibeLevel descending,
+ * then pairs highest with lowest, second-highest with second-lowest, etc.
+ * If odd count, the middle participant becomes a solo.
+ */
+export function foldPair(participants: Participant[]): FoldPairResult {
+  if (participants.length === 0) return { pairs: [], solo: null };
+
+  const sorted = [...participants].sort((a, b) => b.vibeLevel - a.vibeLevel);
+  const pairs: [Participant, Participant][] = [];
+  let lo = 0;
+  let hi = sorted.length - 1;
+
+  while (lo < hi) {
+    pairs.push([sorted[lo], sorted[hi]]);
+    lo++;
+    hi--;
+  }
+
+  return { pairs, solo: lo === hi ? sorted[lo] : null };
+}
+
+
 import { prisma } from "./prisma";
 
 const GREEK_LETTERS = [
@@ -35,19 +67,8 @@ export async function formTeams(eventId: string): Promise<void> {
   }
 
   // 2. Fold pairing: highest with lowest
-  const pairs: User[][] = [];
-  const sorted = [...participants]; // already sorted desc
-  let lo = 0;
-  let hi = sorted.length - 1;
-
-  while (lo < hi) {
-    pairs.push([sorted[lo], sorted[hi]]);
-    lo++;
-    hi--;
-  }
-
-  // Odd player in the middle becomes a solo team
-  const soloPlayer = lo === hi ? sorted[lo] : null;
+  const { pairs: rawPairs, solo: soloPlayer } = foldPair(participants);
+  const pairs = rawPairs as User[][];
 
   // 3. Get available projects and stacks
   const projects = await prisma.project.findMany();
